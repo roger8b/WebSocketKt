@@ -6,9 +6,10 @@ import com.rms.websocketkt.entity.Message
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-internal class WebsocketKtImpl(
+internal class WebSocketKtImpl private constructor(
     val client: OkHttpClient,
-    val request: Request
+    val request: Request,
+    val webSocketLifecycle: WebSocketLifecycle
 ) : WebsocketKt {
 
     override fun connect(block: Result<ConnectionStatus>.() -> Unit) {
@@ -33,5 +34,15 @@ internal class WebsocketKtImpl(
 
     override fun reconnect(block: Result<ConnectionStatus>.() -> Unit) {
         TODO("Not yet implemented")
+    }
+
+    object Factory {
+        operator fun invoke(client: OkHttpClient, request: Request): WebsocketKt {
+            return WebSocketKtImpl(
+                client,
+                request,
+                WebSocketLifecycle.Factory()
+            )
+        }
     }
 }

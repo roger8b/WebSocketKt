@@ -29,6 +29,6 @@ fun webSocketKtInitializer(init: WebSocketKtInitializer.() -> Unit): WebsocketKt
         .url(url)
         .build()
 
-    return WebsocketKtImpl(client, request)
+    return WebSocketKtImpl.Factory(client, request)
 }
 
