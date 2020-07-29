@@ -1,6 +1,7 @@
-package com.rms.websocketkt.connection
+package com.rms.websocketkt.api
 
-import com.rms.websocketkt.api.WebsocketKt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.TimeUnit
@@ -11,7 +12,7 @@ data class WebSocketKtInitializer(
 )
 
 
-fun webSocketKtInitializer(init: WebSocketKtInitializer.() -> Unit): WebsocketKt {
+fun webSocketKtInitializer(init: WebSocketKtInitializer.() -> Unit): WebSocketKt {
     val webSocketInitializer = WebSocketKtInitializer()
     webSocketInitializer.init()
 
@@ -29,6 +30,6 @@ fun webSocketKtInitializer(init: WebSocketKtInitializer.() -> Unit): WebsocketKt
         .url(url)
         .build()
 
-    return WebSocketKtImpl.Factory(client, request)
+    return WebSocketKtImpl.Factory(client, request, CoroutineScope(Dispatchers.Main))
 }
 

@@ -4,7 +4,7 @@ import okhttp3.Response
 import okhttp3.WebSocket
 import okio.ByteString
 
-sealed class ConnectionStatus {
+internal sealed class ConnectionStatus {
 
     data class OnOpen(
         val webSocket: WebSocket,
