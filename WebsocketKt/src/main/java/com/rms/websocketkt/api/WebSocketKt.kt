@@ -15,6 +15,4 @@ interface WebSocketKt {
 
     fun receiveMessage(block: Result<Message>.() -> Unit)
 
-    fun reconnect(block: Result<OpenConnection>.() ->Unit)
-
 }

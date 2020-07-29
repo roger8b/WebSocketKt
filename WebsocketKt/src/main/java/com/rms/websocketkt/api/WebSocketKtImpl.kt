@@ -31,10 +31,6 @@ internal class WebSocketKtImpl private constructor(
         connection.observeConnection(block)
     }
 
-    override fun reconnect(block: Result<OpenConnection>.() -> Unit) {
-        TODO("Not yet implemented")
-    }
-
     object Factory {
         operator fun invoke(
             client: OkHttpClient,
