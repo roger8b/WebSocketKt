@@ -1,7 +1,6 @@
 package com.rms.websocketkt.api
 
 import com.rms.websocketkt.entity.CloseConnection
-import com.rms.websocketkt.entity.ConnectionStatus
 import com.rms.websocketkt.entity.Message
 import com.rms.websocketkt.entity.OpenConnection
 

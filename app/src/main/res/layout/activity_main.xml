@@ -16,7 +16,7 @@
         android:layout_marginBottom="@dimen/component_distance"
         android:hint="Endereço do Socket"
         app:layout_constraintBottom_toTopOf="@id/lvReceivedMessages"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/lvReceivedMessages"
@@ -43,18 +43,38 @@
 
     <Button
         android:id="@+id/btConnect"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/component_distance"
+        android:background="@android:color/holo_green_dark"
         android:text="Conectar"
-        app:layout_constraintBottom_toTopOf="@id/btDisconnect" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btDisconnect"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/btDisconnect"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="@dimen/component_distance"
+        android:background="@android:color/holo_red_dark"
+        android:text="Desconectar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btClear"
+        app:layout_constraintStart_toEndOf="@id/btConnect" />
+
+    <Button
+        android:id="@+id/btClear"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/component_distance"
-        android:text="Desconectar"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:background="@android:color/holo_orange_dark"
+        android:text="Clear"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btDisconnect" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

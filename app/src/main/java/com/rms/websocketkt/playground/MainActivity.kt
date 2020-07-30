@@ -1,8 +1,8 @@
 package com.rms.websocketkt.playground
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
+import androidx.appcompat.app.AppCompatActivity
 import com.rms.websocketkt.api.WebSocketKt
 import com.rms.websocketkt.api.webSocketKtInitializer
 import com.rms.websocketkt.entity.Message
@@ -104,6 +104,14 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+
+        btClear.setOnClickListener {
+            counter = 0
+            val message = "Mensagem $counter"
+            updateSendMessage(message)
+            list.clear()
+            arrayAdapterView.notifyDataSetChanged()
+        }
     }
 
     private fun observeMessages() {
@@ -129,6 +137,7 @@ class MainActivity : AppCompatActivity() {
             }
         )
         arrayAdapterView.notifyDataSetChanged()
+        lvReceivedMessages.setSelection(arrayAdapterView.count - 1)
     }
 }
 
