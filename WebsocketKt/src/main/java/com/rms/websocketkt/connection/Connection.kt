@@ -1,8 +1,7 @@
 package com.rms.websocketkt.connection
 
+import android.annotation.SuppressLint
 import android.util.Log
-import com.coroutines.flowext.FlowEmitter
-import com.coroutines.flowext.flowSubscriberOf
 import com.rms.websocketkt.api.WEB_SOCKET_KT
 import com.rms.websocketkt.entity.*
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +14,7 @@ import okhttp3.WebSocket
 
 internal const val NORMAL_CLOSURE: Int = 1000
 
+@SuppressLint("LogNotTimber")
 internal class Connection private constructor(
     private val client: OkHttpClient,
     private val request: Request,
@@ -25,12 +25,8 @@ internal class Connection private constructor(
     private var webSocket: WebSocket? = null
 
     fun startConnection(result: Result<OpenConnection>.() -> Unit) {
-        webSocket = client.newWebSocket(request, lifecycle)
-        client.dispatcher.executorService.shutdown()
-
-        publisherOpen()
         coroutineScope.launch {
-            getConnectionStatusFlow().collect { connectionStatus ->
+            lifecycle.stream.collect { connectionStatus ->
                 when (connectionStatus) {
                     is ConnectionStatus.OnOpen -> result(
                         Result.success(
@@ -44,9 +40,13 @@ internal class Connection private constructor(
                             WebSocketKtErrors.StartConnectionError(connectionStatus.t.message.orEmpty())
                         )
                     )
+                    else -> Log.d(WEB_SOCKET_KT, "[startConnection] $connectionStatus")
                 }
             }
         }
+
+        webSocket = client.newWebSocket(request, lifecycle)
+        client.dispatcher.executorService.shutdown()
     }
 
     private fun mapOpenConnection(response: okhttp3.Response): OpenConnection =
@@ -63,7 +63,7 @@ internal class Connection private constructor(
         getWebSocket().close(NORMAL_CLOSURE, null)
 
         coroutineScope.launch() {
-            getConnectionStatusFlow().collect { connectionStatus ->
+            lifecycle.stream.collect { connectionStatus ->
                 when (connectionStatus) {
                     is ConnectionStatus.OnClosed -> {
                         result(
@@ -77,6 +77,7 @@ internal class Connection private constructor(
                             WebSocketKtErrors.CloseConnectionError(connectionStatus.t.message.orEmpty())
                         )
                     )
+                    else -> Log.d(WEB_SOCKET_KT, "[stopConnection] $connectionStatus")
                 }
             }
         }
@@ -108,20 +109,11 @@ internal class Connection private constructor(
 
     fun observeConnection(block: Result<Message>.() -> Unit) {
         coroutineScope.launch {
-            getConnectionStatusFlow().filter { it is ConnectionStatus.OnMessageString }
+            lifecycle.stream.filter { it is ConnectionStatus.OnMessageString }
                 .collect { connectionStatus ->
                     connectionStatus as ConnectionStatus.OnMessageString
                     block(Result.success(Message.Text(connectionStatus.text)))
                 }
-        }
-    }
-
-    private fun getConnectionStatusFlow() =
-        flowSubscriberOf<ConnectionStatus>(lifecycle.loadPublisher()).asFlow()
-
-    private fun publisherOpen() {
-        coroutineScope.launch {
-            lifecycle.loadPublisher().open()
         }
     }
 
@@ -138,10 +130,7 @@ internal class Connection private constructor(
                 client,
                 request,
                 coroutineScope,
-                WebSocketLifecycle.Factory(
-                    FlowEmitter(),
-                    coroutineScope
-                )
+                WebSocketLifecycle.Factory(coroutineScope)
             )
         }
     }

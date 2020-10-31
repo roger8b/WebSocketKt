@@ -8,7 +8,10 @@ import java.util.concurrent.TimeUnit
 
 data class WebSocketKtInitializer(
     var url: String? = null,
-    var readTimeout: Long? = null
+    var readTimeout: Long? = null,
+    var coroutineScope: CoroutineScope? = null,
+    var okHttpClient: OkHttpClient? = null,
+    var request: Request? = null
 )
 
 
@@ -23,13 +26,16 @@ fun webSocketKtInitializer(init: WebSocketKtInitializer.() -> Unit): WebSocketKt
         "[webSocketKtInitializer] readTimeout must be set "
     }
 
-    val client: OkHttpClient = OkHttpClient.Builder()
+    val coroutineScope = webSocketInitializer.coroutineScope ?: CoroutineScope(Dispatchers.Main)
+
+    val okHttpClient: OkHttpClient = webSocketInitializer.okHttpClient ?: OkHttpClient.Builder()
         .readTimeout(readTimeout, TimeUnit.MILLISECONDS)
         .build()
-    val request: Request = Request.Builder()
+
+    val request: Request = webSocketInitializer.request ?: Request.Builder()
         .url(url)
         .build()
 
-    return WebSocketKtImpl.Factory(client, request, CoroutineScope(Dispatchers.Main))
+    return WebSocketKtImpl.Factory(okHttpClient, request, coroutineScope)
 }
 

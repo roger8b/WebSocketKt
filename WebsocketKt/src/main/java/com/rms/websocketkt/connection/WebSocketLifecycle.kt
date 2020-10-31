@@ -1,28 +1,25 @@
 package com.rms.websocketkt.connection
 
+import android.annotation.SuppressLint
 import android.util.Log
-import com.coroutines.flowext.FlowEmitter
-import com.coroutines.flowext.FlowPublisher
 import com.rms.websocketkt.api.WEB_SOCKET_KT
 import com.rms.websocketkt.entity.ConnectionStatus
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import okhttp3.Response
 import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okio.ByteString
 
+@SuppressLint("LogNotTimber")
 internal class WebSocketLifecycle private constructor(
-    private val scope: CoroutineScope,
-    private val emitter: FlowEmitter<ConnectionStatus>
+    private val scope: CoroutineScope
 ) : WebSocketListener() {
 
-    private val publisher: FlowPublisher<ConnectionStatus> by lazy {
-        emitter.asPublisher()
-    }
-
-    fun loadPublisher(): FlowPublisher<ConnectionStatus> = publisher
-
+    private val _stream = MutableSharedFlow<ConnectionStatus>()
+    val stream = _stream.asSharedFlow()
 
     override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
         Log.d(WEB_SOCKET_KT, "[onClosed] $code $reason $webSocket")
@@ -49,6 +46,7 @@ internal class WebSocketLifecycle private constructor(
         emit(ConnectionStatus.OnMessageByteString(webSocket, bytes))
     }
 
+
     override fun onOpen(webSocket: WebSocket, response: Response) {
         Log.d(WEB_SOCKET_KT, "[onOpen] $response $webSocket")
         emit(ConnectionStatus.OnOpen(webSocket, response))
@@ -56,12 +54,12 @@ internal class WebSocketLifecycle private constructor(
 
     private fun emit(connectionStatus: ConnectionStatus) {
         scope.launch {
-            emitter.emit(connectionStatus)
+            _stream.emit(connectionStatus)
         }
     }
 
     object Factory {
-        operator fun invoke(emitter: FlowEmitter<ConnectionStatus>, scope: CoroutineScope) =
-            WebSocketLifecycle(scope, emitter)
+        operator fun invoke(scope: CoroutineScope) =
+            WebSocketLifecycle(scope)
     }
 }
